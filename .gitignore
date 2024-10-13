@@ -1,0 +1,15 @@
+# Ignore data files
+data/
+!data/README.md  # If you want to keep a README in the data directory
+
+# Ignore virtual environment
+venv/
+env/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore system files
+.DS_Store
+Thumbs.db
