@@ -17,16 +17,18 @@ This project implements a Retrieval-Augmented Generation (RAG) chatbot using Pyt
 git clone https://github.com/yourusername/rag_chatbot.git
 cd rag_chatbot
 ```
-## Steps to start the app
+### 2. Steps to start the app
+
+```
 python3 -m venv venv  
 source venv/bin/activate  (MacOS)
 pip3 install -r requirements.txt
 cd src
 python3 app.py
+```
 
-
-
-# additional install
+# additional installations
 pip3 install 'accelerate>=0.26.0'
 pip3 uninstall sentence-transformers transformers 
 pip3 install sentence-transformers==3.0.1  transformers==4.44
+pip3 install cohere
