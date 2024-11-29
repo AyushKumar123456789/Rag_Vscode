@@ -13,3 +13,7 @@ __pycache__/
 # Ignore system files
 .DS_Store
 Thumbs.db
+
+# fine_tuned_embedding_model
+
+fine_tuned_embedding_model/

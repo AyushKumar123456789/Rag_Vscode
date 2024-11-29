@@ -23,7 +23,7 @@ def open_and_read_pdf(pdf_path: str) -> list:
         })
     return pages_and_texts
 
-def split_sentences(pages_and_texts: list, num_sentence_chunk_size: int = 10) -> list:
+def split_sentences(pages_and_texts: list, num_sentence_chunk_size: int = 5) -> list:
     """Splits text into sentences and groups them into chunks."""
     nlp = English() #initalising the spacy English model , spacy is used to create sentences chunk.
     nlp.add_pipe("sentencizer") # Adding the sentencizer to the pipeline.

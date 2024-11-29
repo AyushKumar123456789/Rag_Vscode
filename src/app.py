@@ -3,8 +3,8 @@ import torch
 from sentence_transformers import SentenceTransformer
 from download_pdf import download_pdf
 from process_pdf import process_pdf
-from generate_embeddings import generate_embeddings
-from retrieve import load_embeddings, retrieve_relevant_chunks, print_results
+from generate_embeddings import generate_embeddings_original_model, generate_embeddings_fine_tuned_model
+from retrieve import load_embeddings, retrieve_relevant_chunks, print_results, query_gemini_with_retrieved_chunks, retrieve_relevant_chunks_with_expansion, retrieve_and_rerank_chunks, query_gemini_with_reranked_chunks
 
 def main():
     # Paths
@@ -28,13 +28,21 @@ def main():
         print("Processing PDF to extract text chunks...")
         process_pdf(pdf_path, chunks_csv_path)
 
-    # Generate embeddings
+    # Generate embeddings from original model
     if os.path.exists(embeddings_npy_path) and os.path.exists(embeddings_csv_path) :
         print(f"Embeddings file already exist at {embeddings_npy_path} , So no need to create it again.")
     else :
         print("Generating embeddings...")
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        generate_embeddings(chunks_csv_path, embeddings_csv_path, embeddings_npy_path, device)
+        generate_embeddings_original_model(chunks_csv_path, embeddings_csv_path, embeddings_npy_path, device)
+
+    # # Generate embeddings from fine-tuned model
+    # if os.path.exists(embeddings_npy_path) and os.path.exists(embeddings_csv_path) :
+    #     print(f"Embeddings file already exist at {embeddings_npy_path} , So no need to create it again.")
+    # else :
+    #     print("Generating embeddings...")
+    #     device = "cuda" if torch.cuda.is_available() else "cpu"
+    #     generate_embeddings_fine_tuned_model(chunks_csv_path, embeddings_csv_path, embeddings_npy_path, device)
 
     # Load embeddings
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -47,8 +55,26 @@ def main():
         query = input("Enter your query: ")
         if query.lower() in ['exit', 'quit']:
             break
+        
+        # 1. Chunking technique
         indices, scores = retrieve_relevant_chunks(query, df, embeddings, model)
-        print_results(query, df, indices, scores)
+        query_gemini_with_retrieved_chunks(df, indices, scores, query)
+
+        # 2. Re-ranking technique: Cohere's algorithm
+        reranked_texts, reranked_scores = retrieve_and_rerank_chunks(query, df, embeddings, model)
+        query_gemini_with_reranked_chunks(df, reranked_texts, reranked_scores, query)
+
+        # 3. Query expansion technique: HyDE (Hypothetical Document Embeddings)
+        indices, scores = retrieve_relevant_chunks_with_expansion(query, df, embeddings, SentenceTransformer('all-MiniLM-L6-v2'))
+        # print_results(query, df, indices, scores)
+        query_gemini_with_retrieved_chunks(df, indices, scores, query)
+
+        # 4. Fine tune embedding model
+        indices, scores = retrieve_relevant_chunks(query, df, embeddings, model)
+        query_gemini_with_retrieved_chunks(df, indices, scores, query)
+
+
+
 
 if __name__ == "__main__":
     main()

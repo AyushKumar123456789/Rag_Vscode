@@ -7,3 +7,8 @@ numpy
 pandas
 matplotlib
 requests
+google-generativeai
+nltk
+datasets
+transformers
+cohere
